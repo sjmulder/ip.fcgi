@@ -5,17 +5,6 @@
 #include <err.h>
 #include <kcgi.h>
 
-static void
-handle(struct kreq *req)
-{
-	khttp_head(req, kresps[KRESP_STATUS], "%s", khttps[KHTTP_200]);
-	khttp_head(req, kresps[KRESP_CONTENT_TYPE], "%s",
-	    kmimetypes[KMIME_TEXT_PLAIN]);
-	khttp_body(req);
-	khttp_puts(req, req->remote);
-	khttp_puts(req, "\n");
-}
-
 int
 main(void)
 {
@@ -28,7 +17,13 @@ main(void)
 		errx(1, "khttp_fcgi_init: error %d", err);
 
 	while ((err = khttp_fcgi_parse(fcgi, &req)) == KCGI_OK) {
-		handle(&req);
+		khttp_head(&req, kresps[KRESP_STATUS], "%s",
+		    khttps[KHTTP_200]);
+		khttp_head(&req, kresps[KRESP_CONTENT_TYPE], "%s",
+		    kmimetypes[KMIME_TEXT_PLAIN]);
+		khttp_body(&req);
+		khttp_puts(&req, req.remote);
+		khttp_puts(&req, "\n");
 		khttp_free(&req);
 	}
 
